@@ -1,6 +1,8 @@
 <?php
 // db_api.php
-// Contoh API untuk menerima key, ip, lalu menghasilkan port acak, dan mengembalikan data JSON.
+// Menerima POST => key, ip
+// Generate port random, tulis ke multi_reverse_db.csv
+// Kembalikan JSON: {status, key, ip, port}
 
 header('Content-Type: application/json');
 
@@ -20,18 +22,17 @@ if ($key === '') {
     exit;
 }
 
-// Generate port random
+// Generate random port
 $port_min = 30000;
 $port_max = 40000;
 $port = rand($port_min, $port_max);
 
-// Tulis data ke file CSV (API side). 
-// Di sini hanya untuk referensi, nantinya script.sh juga akan menulis ke local DB.
+// Tulis ke CSV
 $date = date('Y-m-d H:i:s');
-$line = "$key,$ip,$port,API_STORED,-,$date\n";
+$line = "$key,$ip,$port,STOPPED,-,$date\n";
 file_put_contents($db_file, $line, FILE_APPEND);
 
-// Respons JSON
+// Kembalikan respons
 echo json_encode([
     'status' => 'success',
     'key'    => $key,
